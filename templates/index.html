@@ -1,62 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MealMate</title>
+    <title>MealMate - Recipe Finder</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
     <h1>MealMate</h1>
-    <form action="/search" method="get">
-        <input type="text" name="query" placeholder="Search for recipes..." required>
-        <button type="submit">Search</button>
-    </form>
-    <form action="/search" method="get">
-        <input type="text" name="query" placeholder="cooktime" required>
-        <button type="submit">Search</button>
-    </form>
-    <form action="/search" method="get">
-        <input type="text" name="query" placeholder="dietary restrictions" required>
-        <button type="submit">Search</button>
-    </form>
-    <div>
-        <input type="text" id="itemInput" placeholder="Ingredients">
-        <button id="addButton" onclick="addItem()">Add</button>
+    
+    <div class="search-container">
+        <div class="input-group">
+            <input type="text" id="ingredientInput" placeholder="Add ingredients (type to see suggestions)" autocomplete="off">
+            <button id="addButton">Add</button>
+            <div id="suggestions"></div>
+        </div>
+        
+        <ul id="ingredientList"></ul>
+        
+        <button id="searchButton">Find Recipes</button>
     </div>
     
-    <ul id="myList">
-    </ul>
+    <div id="recipeResults"></div>
 
-    <script>
-        function addItem() {
-            const input = document.getElementById('itemInput');
-            const itemText = input.value.trim(); 
-            
-            if (itemText !== '') {
-                const list = document.getElementById('myList');
-                const listItem = document.createElement('li');
-                
-                listItem.textContent = itemText;
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Delete';
-                
-                deleteBtn.onclick = function() {
-                    list.removeChild(listItem);
-                };
-                
-
-                listItem.appendChild(deleteBtn);
-                
-                list.appendChild(listItem);
-                
-                input.value = '';
-            }
-        }
-
-        document.getElementById('itemInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addItem();
-            }
-        });
-    </script>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>
