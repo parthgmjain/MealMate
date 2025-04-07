@@ -1,20 +1,15 @@
-from flask import Flask, jsonify
-import pandas as pd
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Load your dataset
-try:
-    df = pd.read_csv("recipes.csv") 
-except FileNotFoundError:
-    print("CSV file not found. Make sure it's in the same directory as app.py.")
-    df = pd.DataFrame()
-
 @app.route('/')
 def index():
-    # Return a few sample rows as JSON
-    sample = df.head(5).to_dict(orient='records')
-    return jsonify(sample)
+    return render_template('index.html')
+
+@app.route('/search')
+def search():
+    query = request.args.get('query')
+    return f"<h2>Search results for: {query}</h2>"
 
 if __name__ == '__main__':
     app.run(debug=True)
