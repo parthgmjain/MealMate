@@ -9,5 +9,54 @@
         <input type="text" name="query" placeholder="Search for recipes..." required>
         <button type="submit">Search</button>
     </form>
+    <form action="/search" method="get">
+        <input type="text" name="query" placeholder="cooktime" required>
+        <button type="submit">Search</button>
+    </form>
+    <form action="/search" method="get">
+        <input type="text" name="query" placeholder="dietary restrictions" required>
+        <button type="submit">Search</button>
+    </form>
+    <div>
+        <input type="text" id="itemInput" placeholder="Ingredients">
+        <button id="addButton" onclick="addItem()">Add</button>
+    </div>
+    
+    <ul id="myList">
+    </ul>
+
+    <script>
+        function addItem() {
+            const input = document.getElementById('itemInput');
+            const itemText = input.value.trim(); 
+            
+            if (itemText !== '') {
+                const list = document.getElementById('myList');
+                const listItem = document.createElement('li');
+                
+                listItem.textContent = itemText;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                
+                deleteBtn.onclick = function() {
+                    list.removeChild(listItem);
+                };
+                
+
+                listItem.appendChild(deleteBtn);
+                
+                list.appendChild(listItem);
+                
+                input.value = '';
+            }
+        }
+
+        document.getElementById('itemInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+    </script>
 </body>
 </html>
