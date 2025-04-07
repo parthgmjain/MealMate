@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Load your dataset
 try:
-    df = pd.read_csv("recipes.csv")  # ✅ updated filename
+    df = pd.read_csv("recipes.csv") 
 except FileNotFoundError:
     print("CSV file not found. Make sure it's in the same directory as app.py.")
     df = pd.DataFrame()
