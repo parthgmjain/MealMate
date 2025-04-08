@@ -133,11 +133,9 @@ def popular_ingredients():
 @app.route('/api/recipes-with-ingredients', methods=['POST'])
 def recipes_with_ingredients():
     ingredients = request.json.get('ingredients', [])
-    ingredients = [search_engine.preprocess_name(ing) for ing in ingredients]
     
     def score_recipe(row):
         try:
-            # Clean and parse ingredients
             ingredients_str = row['RecipeIngredientParts'].replace('c("', '["').replace('")', '"]')
             recipe_ings = ast.literal_eval(ingredients_str.lower())
             recipe_ings = [search_engine.preprocess_name(ing) for ing in recipe_ings]
@@ -146,9 +144,13 @@ def recipes_with_ingredients():
             print(f"Error scoring recipe: {e}")
             return 0
     
+    # Load only necessary columns
     df = pd.read_csv('recipes.csv', 
-                    usecols=['Name', 'RecipeIngredientParts', 'RecipeInstructions'],
-                    dtype={'RecipeIngredientParts': 'string', 'Name': 'string'},
+                    usecols=[
+                        'RecipeId', 'Name', 'RecipeIngredientParts',
+                        'RecipeServings', 'Calories', 'FatContent', 'ProteinContent' , 'SodiumContent',
+                        "SugarContent", "CarbohydrateContent", "SaturatedFatContent"
+                    ],
                     engine='c')
     
     df['score'] = df.apply(score_recipe, axis=1)
@@ -157,15 +159,67 @@ def recipes_with_ingredients():
     results = []
     for _, row in matches.iterrows():
         try:
+            ingredients = ast.literal_eval(row['RecipeIngredientParts'].replace('c("', '["').replace('")', '"]'))
+            
             results.append({
+                'id': row['RecipeId'],
                 'name': row['Name'],
-                'ingredients': ast.literal_eval(row['RecipeIngredientParts'].replace('c("', '["').replace('")', '"]')),
-                'instructions': row['RecipeInstructions']
+                'servings': row['RecipeServings'] if pd.notna(row['RecipeServings']) else 'N/A',
+                'ingredients': ingredients,
+                'nutrition': {
+                    'calories': row['Calories'] if pd.notna(row['Calories']) else 'N/A',
+                    'totalFat': row['FatContent'] if pd.notna(row['FatContent']) else 'N/A',
+                    'saturatedFat': row['SaturatedFatContent'] if pd.notna(row['SaturatedFatContent']) else 'N/A',
+                    'sodium': row['SodiumContent'] if pd.notna(row['SodiumContent']) else 'N/A',
+                    'sugar': row['SugarContent'] if pd.notna(row['SugarContent']) else 'N/A',
+                    'carbohydrate': row['CarbohydrateContent'] if pd.notna(row['CarbohydrateContent']) else 'N/A',
+                    'protein': row['ProteinContent'] if pd.notna(row['ProteinContent']) else 'N/A',
+                    
+}
             })
-        except:
+        except Exception as e:
+            print(f"Error processing recipe: {e}")
             continue
     
     return jsonify(results)
+
+
+
+@app.route('/recipe/<int:recipe_id>')
+def recipe_detail(recipe_id):
+    try:
+        df = pd.read_csv('recipes.csv', 
+                        usecols=['Name', 'RecipeIngredientParts', 'RecipeInstructions'],
+                        dtype={'RecipeIngredientParts': 'string', 'Name': 'string'},
+                        engine='c')
+
+        recipe = df.iloc[recipe_id]
+
+        # Parse and format ingredients and instructions
+        ingredients_str = recipe['RecipeIngredientParts'].replace('c("', '["').replace('")', '"]')
+        ingredients = ast.literal_eval(ingredients_str.lower())
+        instructions = recipe['RecipeInstructions']
+
+        # Convert instructions to list if possible
+        try:
+            instructions_list = ast.literal_eval(instructions.replace('c("', '["').replace('")', '"]'))
+            if isinstance(instructions_list, list):
+                instructions = instructions_list
+        except:
+            pass
+
+        return render_template('recipe_detail.html',
+                               recipe={
+                                   'Name': recipe['Name'],
+                                   'RecipeIngredientParts': ingredients,
+                                   'RecipeInstructions': instructions
+                               },
+                               instructions=instructions,
+                               main_image=None)  # You can add an image URL if available
+
+    except Exception as e:
+        print(f"Error loading recipe {recipe_id}: {e}")
+        return "Recipe not found", 404
 
 if __name__ == '__main__':
     app.run(debug=True)

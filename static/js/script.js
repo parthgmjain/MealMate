@@ -78,6 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
         ingredientList.appendChild(li);
         ingredientInput.value = '';
     }
+
+    // Setup click handlers for recipe cards
+    function setupRecipeCards() {
+        document.querySelectorAll('.recipe-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                // Don't navigate if user clicked on a button inside the card
+                if (e.target.tagName === 'BUTTON') return;
+                
+                const recipeId = card.getAttribute('data-id');
+                if (recipeId) {
+                    window.location.href = `/recipe/${recipeId}`;
+                }
+            });
+        });
+    }
     
     // Search for recipes
     async function searchRecipes() {
@@ -87,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
+            recipeResults.innerHTML = '<div class="loading">Searching recipes...</div>';
             const response = await fetch('/api/recipes-with-ingredients', {
                 method: 'POST',
                 headers: {
@@ -112,24 +128,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let html = '<h2>Found Recipes</h2>';
         recipes.forEach(recipe => {
-            let ingredients = [];
-            try {
-                ingredients = JSON.parse(recipe.ingredients.replace(/'/g, '"'));
-            } catch (e) {
-                ingredients = recipe.ingredients;
-            }
+            // Simple ingredients list without quantities
+            const ingredientsList = recipe.ingredients
+                .slice(0, 5) // Show first 5 ingredients only
+                .map(ing => `<li>${ing}</li>`)
+                .join('');
             
             html += `
-                <div class="recipe-card">
-                    <div class="recipe-title">${recipe.name || 'Untitled Recipe'}</div>
-                    <div class="recipe-ingredients">
-                        <strong>Ingredients:</strong> ${Array.isArray(ingredients) ? ingredients.join(', ') : ingredients}
+                <div class="recipe-card" data-id="${recipe.id}">
+                    <div class="recipe-content">
+                        <div class="recipe-title">${recipe.name}</div>
+                        <div class="recipe-meta">Serves: ${recipe.servings}</div>
+                        
+                        <div class="recipe-info-flex">
+                        <div class="recipe-section">
+                            <h3>Key Ingredients</h3>
+                            <ul class="ingredients-list">${ingredientsList}</ul>
+                        </div>
+                        <div class="nutrition-label">
+                            <div class="nutrition-title">Nutrition Facts</div>
+                            <div><strong>Calories:</strong> ${recipe.nutrition.calories} kcal</div>
+                            <hr>
+                            <div><strong>Total Fat:</strong> ${recipe.nutrition.totalFat} g</div>
+                            <div class="sub-item">Saturated Fat: ${recipe.nutrition.saturatedFat} g</div>
+                            <div><strong>Sodium:</strong> ${recipe.nutrition.sodium} mg</div>
+                            <div><strong>Total Carbohydrate:</strong> ${recipe.nutrition.carbohydrate} g</div>
+                            <div class="sub-item">Sugars: ${recipe.nutrition.sugar} g</div>
+                            <div><strong>Protein:</strong> ${recipe.nutrition.protein} g</div>
+                            </div>
+                    </div>
                     </div>
                 </div>
             `;
         });
         
         recipeResults.innerHTML = html;
+        setupRecipeCards();
     }
     
     // Event listeners

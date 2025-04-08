@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ recipe.Name }} - MealMate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recipe.css') }}">
+</head>
+<body>
+    <div class="recipe-container">
+        {% if main_image %}
+        <img src="{{ main_image }}" alt="{{ recipe.Name }}" class="recipe-image">
+        {% endif %}
+        
+        <h1 class="recipe-title">{{ recipe.Name }}</h1>
+        
+        <div class="recipe-meta">
+            {% if recipe.PrepTime %}<span>Prep: {{ recipe.PrepTime }}</span> | {% endif %}
+            {% if recipe.CookTime %}<span>Cook: {{ recipe.CookTime }}</span> | {% endif %}
+            {% if recipe.TotalTime %}<span>Total: {{ recipe.TotalTime }}</span>{% endif %}
+        </div>
+        
+        <div class="ingredients-list">
+            <h2>Ingredients</h2>
+            <ul>
+                {% for ingredient in recipe.RecipeIngredientParts %}
+                <li>{{ ingredient }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="instructions">
+            <h2>Instructions</h2>
+            <p>{{ instructions|safe }}</p>
+        </div>
+        
+        <a href="{{ url_for('index') }}" class="back-button">Back to Search</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/recipe.js') }}"></script>
+</body>
+</html>

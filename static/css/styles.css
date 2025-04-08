@@ -104,11 +104,89 @@ h1 {
 }
 
 .recipe-card {
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
     border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 30px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: white;
+}
+
+.recipe-content {
+    padding: 20px;
+}
+
+.recipe-meta {
+    color: #7f8c8d;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.recipe-section {
+    margin-bottom: 20px;
+}
+
+.recipe-section h3 {
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.ingredients-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ingredients-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+}
+
+.ingredients-list li strong {
+    min-width: 60px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Nutrition Facts Styling */
+.nutrition-facts {
+    border: 1px solid #000;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 15px;
+}
+
+.nutrition-header {
+    font-size: 1.5em;
+    font-weight: bold;
+    border-bottom: 5px solid #000;
+    margin-bottom: 5px;
+}
+
+.nutrition-serving {
+    font-size: 0.9em;
+    border-bottom: 1px solid #000;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.nutrition-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+}
+
+.nutrition-row span:first-child {
+    font-weight: bold;
 }
 
 .recipe-title {
@@ -121,4 +199,33 @@ h1 {
 .recipe-ingredients {
     color: #7f8c8d;
     font-size: 0.9em;
+}
+
+.recipe-info-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.nutrition-label {
+    border: 2px solid black;
+    padding: 1rem;
+    max-width: 200px;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.nutrition-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-bottom: 2px solid black;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+}
+
+.nutrition-row {
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
 }
