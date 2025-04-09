@@ -1,9 +1,11 @@
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
-    max-width: 800px;
+    max-width: 1200px; /* Increased max-width */
     margin: 0 auto;
     padding: 20px;
     line-height: 1.6;
+    background-color: #f4f6f8;
 }
 
 h1 {
@@ -12,6 +14,15 @@ h1 {
     margin-bottom: 30px;
 }
 
+/* Main Container to hold Recipes and Graph Side-by-Side */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px; /* Space between the two sections */
+    flex-wrap: wrap; /* Ensure responsiveness */
+}
+
+/* Search Container */
 .search-container {
     background: #f9f9f9;
     padding: 20px;
@@ -47,60 +58,10 @@ h1 {
     background-color: #2980b9;
 }
 
-#suggestions {
-    position: absolute;
-    width: 70%;
-    max-height: 200px;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    z-index: 1000;
-    display: none;
-}
-
-#suggestions div {
-    padding: 8px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-}
-
-#suggestions div:hover {
-    background-color: #f0f0f0;
-}
-
-#ingredientList {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-}
-
-#ingredientList li {
-    background: #fff;
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#ingredientList button {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-#ingredientList button:hover {
-    background: #c0392b;
-}
-
+/* Recipe Results */
 #recipeResults {
     margin-top: 30px;
+    flex: 1; /* Allow the recipe results section to take up available space */
 }
 
 .recipe-card {
@@ -112,6 +73,12 @@ h1 {
     margin-bottom: 30px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     background: white;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
 .recipe-content {
@@ -225,7 +192,167 @@ h1 {
     padding-bottom: 0.25rem;
 }
 
-.nutrition-row {
-    font-size: 0.9rem;
-    margin: 0.25rem 0;
+
+/* Profile Form Styling */
+.user-profile-form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.form-group select, .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#saveProfile {
+    background-color: #2ecc71;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#saveProfile:hover {
+    background-color: #27ae60;
+}
+
+/* Graph Section Styling */
+#graphSection {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 40px;
+    flex: 1; /* Allow the graph section to take up available space */
+}
+
+#nutritionChart {
+    width: 100%;
+    max-width: 100%;
+    height: 400px;
+}
+
+/* Focus Styling */
+#addButton:focus, #searchButton:focus, #saveProfile:focus {
+    outline: 2px solid #3498db;
+}
+
+#ingredientInput:focus {
+    border-color: #3498db;
+}
+
+/* Loading Spinner */
+.loading {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1.5s linear infinite;
+    margin: 30px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .search-container, .user-profile-form {
+        padding: 15px;
+    }
+
+    #ingredientInput {
+        width: 60%;
+    }
+
+    .recipe-card {
+        margin-bottom: 20px;
+    }
+
+    #nutritionChart {
+        height: 300px;
+    }
+
+    .main-container {
+        flex-direction: column;
+    }
+}
+
+#nutritionChartContainer {
+    margin-top: 30px;
+    max-width: 500px;
+    height: 300px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#recipeResults {
+    display: inline-block;
+    width: calc(100% - 520px);  /* Makes room for the chart */
+    vertical-align: top;
+    margin-left: 20px;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+@media (max-width: 480px) {
+    #ingredientInput {
+        width: 100%;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.chart-container {
+    width: 300px;  /* Adjust the width as per your needs */
+    height: 300px;  /* Adjust the height as per your needs */
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+}
+
+/* Recipe container and button styling */
+.recipe-container {
+    margin: 20px;
+}
+
+.add-to-graph {
+    padding: 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.add-to-graph:hover {
+    background-color: #2980b9;
+}
+

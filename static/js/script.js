@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function activityMultiplier(level) {
         switch (level) {
             case 'sedentary': return 1.2;
-            case 'light': return 1.375;
-            case 'moderate': return 1.55;
+            case 'lightly_active': return 1.375;
+            case 'moderately_active': return 1.55;
             case 'active': return 1.725;
             case 'extra': return 1.9;
             default: return 1.2;
@@ -77,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayNutritionTargets(targets) {
         if (!dailyTargets) return;
+    
+        initNutritionChart(targets); // <-- separate step
+    
         dailyTargets.innerHTML = `
             <h3>Your Daily Nutrition Targets</h3>
             <ul>
@@ -257,11 +260,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             const recipes = await response.json();
-            displayRecipes(recipes); // Fixed typo here
+            displayRecipes(recipes);
+            document.querySelectorAll('.add-to-graph').forEach((btn, idx) => {
+                btn.addEventListener('click', () => {
+                    updateChartWithRecipe(recipes[idx].nutrition);
+                });
+            });
         } catch (error) {
             console.error('Error searching recipes:', error);
             recipeResults.innerHTML = '<p class="error">Error loading recipes. Please try again.</p>';
         }
+        document.querySelectorAll('.add-to-graph').forEach((btn, idx) => {
+            btn.addEventListener('click', () => {
+                updateChartWithRecipe(recipes[idx].nutrition);
+            });
+        });
     }
     
     // Display recipe results
@@ -301,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                     </div>
+                    <button class="add-to-graph">Add to Graph</button>
                 </div>
             `;
         });
@@ -334,4 +348,70 @@ document.addEventListener('DOMContentLoaded', () => {
             suggestionsDiv.style.display = 'none';
         }
     });
+
+    let chartInstance;
+    let consumedTotals = {
+        calories: 0,
+        protein: 0,
+        fat: 0,
+        carbs: 0,
+        sodium: 0,
+        sugar: 0,
+        saturatedFat: 0
+    };
+
+function initNutritionChart(targets) {
+    const ctx = document.getElementById('nutritionChart').getContext('2d');
+
+    if (chartInstance) chartInstance.destroy(); // Reset old chart if it exists
+
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(consumedTotals),
+            datasets: [
+                {
+                    label: 'Consumed',
+                    data: Object.values(consumedTotals),
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                },
+                {
+                    label: 'Target',
+                    data: Object.values(targets),
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Your Daily Nutrition Progress'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function updateChartWithRecipe(nutrition) {
+    for (let key in consumedTotals) {
+        if (nutrition[key]) {
+            consumedTotals[key] += nutrition[key];
+        }
+    }
+
+    // Update chart data
+    if (chartInstance) {
+        chartInstance.data.datasets[0].data = Object.values(consumedTotals);
+        chartInstance.update();
+    }
+}
+
+
 });

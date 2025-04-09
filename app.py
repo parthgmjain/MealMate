@@ -118,7 +118,14 @@ load_data()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    nutrition_data = {
+        'calories': 2000,
+        'protein': 150,
+        'carbs': 300,
+        'fats': 80
+    }
+    return render_template('index.html', nutrition_data=nutrition_data)
+
 
 @app.route('/api/autocomplete')
 def autocomplete():
