@@ -7,24 +7,104 @@ document.addEventListener('DOMContentLoaded', () => {
     const ingredientList = document.getElementById('ingredientList');
     const recipeResults = document.getElementById('recipeResults');
     const profileForm = document.getElementById('nutritionProfileForm');
-    
+    const dailyTargets = document.getElementById('dailyTargets'); // 👈 Added
+
     let selectedIngredients = [];
+
+    // Conversion helpers
+    const kg = lbs => lbs * 0.453592;
+    const cm = inches => inches * 2.54;
+
+    // BMR calculation
+    function calculateBMR(gender, weight, height, age) {
+        if (gender === 'male') {
+            return 10 * weight + 6.25 * height - 5 * age + 5;
+        } else if (gender === 'female') {
+            return 10 * weight + 6.25 * height - 5 * age - 161;
+        }
+        return 0;
+    }
+
+    // Activity multiplier
+    function activityMultiplier(level) {
+        switch (level) {
+            case 'sedentary': return 1.2;
+            case 'light': return 1.375;
+            case 'moderate': return 1.55;
+            case 'active': return 1.725;
+            case 'extra': return 1.9;
+            default: return 1.2;
+        }
+    }
+
+    // Goal adjustment
+    function goalAdjustment(goal) {
+        switch (goal) {
+            case 'lose': return -500;
+            case 'maintain': return 0;
+            case 'gain': return 250;
+            default: return 0;
+        }
+    }
+
+    // Macro distribution
+    function calculateMacros(calories) {
+        return {
+            protein: Math.round((calories * 0.3) / 4),
+            fat: Math.round((calories * 0.3) / 9),
+            carbs: Math.round((calories * 0.4) / 4)
+        };
+    }
+
+    // Final target calculator
+    function getDailyNutritionTargets(profile) {
+        const weightKg = kg(profile.weight);
+        const heightCm = cm(profile.height);
+        const bmr = calculateBMR(profile.gender, weightKg, heightCm, profile.age);
+        const calories = Math.round(bmr * activityMultiplier(profile.activity)) + goalAdjustment(profile.goal);
+        const macros = calculateMacros(calories);
+
+        return {
+            calories,
+            protein: macros.protein,
+            fat: macros.fat,
+            carbs: macros.carbs,
+            sodium: 2300,
+            sugar: profile.gender === 'female' ? 25 : 36,
+            saturatedFat: 20
+        };
+    }
+
+    function displayNutritionTargets(targets) {
+        if (!dailyTargets) return;
+        dailyTargets.innerHTML = `
+            <h3>Your Daily Nutrition Targets</h3>
+            <ul>
+                <li><strong>Calories:</strong> ${targets.calories} kcal</li>
+                <li><strong>Protein:</strong> ${targets.protein} g</li>
+                <li><strong>Fat:</strong> ${targets.fat} g</li>
+                <li><strong>Carbs:</strong> ${targets.carbs} g</li>
+                <li><strong>Sodium:</strong> ${targets.sodium} mg</li>
+                <li><strong>Sugar:</strong> ${targets.sugar} g</li>
+                <li><strong>Saturated Fat:</strong> ${targets.saturatedFat} g</li>
+            </ul>
+        `;
+    }
 
     // Form submit handler with validation
     profileForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Validate inputs
         const age = parseInt(document.getElementById('age').value);
         const weight = parseFloat(document.getElementById('weight').value);
         const height = parseFloat(document.getElementById('height').value);
-        
-        if (age < 0 || age > 120) {
+
+        if (age < 13 || age > 120) {
             alert('Please enter a valid age between 13 and 120');
             return;
         }
         
-        if (weight < 5 || weight > 1400) {
+        if (weight < 30 || weight > 1400) {
             alert('Please enter a valid weight between 30 and 1400 lbs');
             return;
         }
@@ -39,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Save profile if validation passes
         const profile = {
             gender: document.getElementById('gender').value,
             age: age,
@@ -52,24 +131,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         localStorage.setItem('mealMateProfile', JSON.stringify(profile));
         alert('Profile saved successfully!');
+        
+        const targets = getDailyNutritionTargets(profile);
+        displayNutritionTargets(targets);
     });
 
-    // Load profile on page load
     function loadProfile() {
         const savedProfile = localStorage.getItem('mealMateProfile');
         if (savedProfile) {
             const profile = JSON.parse(savedProfile);
             
-            // Fill the form with saved values
             document.getElementById('gender').value = profile.gender || '';
             document.getElementById('age').value = profile.age || '';
             document.getElementById('weight').value = profile.weight || '';
             document.getElementById('height').value = profile.height || '';
             document.getElementById('activity').value = profile.activity || '';
             document.getElementById('goal').value = profile.goal || '';
+
+            const targets = getDailyNutritionTargets(profile);
+            displayNutritionTargets(targets);
         }
     }
-    
+
     loadProfile();
 
     // Debounce function

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Format instructions if they're in array format
     const instructionsElement = document.querySelector('.instructions p');
     if (instructionsElement) {
         try {
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const items = ingredientsList.querySelectorAll('li');
         items.forEach(item => {
             const text = item.textContent.trim();
-            // Add bullet point and clean up formatting
             item.innerHTML = `• ${text.charAt(0).toUpperCase() + text.slice(1)}`;
         });
     }
