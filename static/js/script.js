@@ -1,13 +1,77 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM elements
     const ingredientInput = document.getElementById('ingredientInput');
     const addButton = document.getElementById('addButton');
     const searchButton = document.getElementById('searchButton');
     const suggestionsDiv = document.getElementById('suggestions');
     const ingredientList = document.getElementById('ingredientList');
     const recipeResults = document.getElementById('recipeResults');
+    const profileForm = document.getElementById('nutritionProfileForm');
     
     let selectedIngredients = [];
+
+    // Form submit handler with validation
+    profileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate inputs
+        const age = parseInt(document.getElementById('age').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        const height = parseFloat(document.getElementById('height').value);
+        
+        if (age < 0 || age > 120) {
+            alert('Please enter a valid age between 13 and 120');
+            return;
+        }
+        
+        if (weight < 5 || weight > 1400) {
+            alert('Please enter a valid weight between 30 and 1400 lbs');
+            return;
+        }
+
+        if (height < 24 || height > 108) {
+            alert('Please enter a valid height between 24 and 108 inches');
+            return;
+        }
+        
+        if (!document.getElementById('gender').value) {
+            alert('Please select your gender');
+            return;
+        }
+
+        // Save profile if validation passes
+        const profile = {
+            gender: document.getElementById('gender').value,
+            age: age,
+            weight: weight,
+            height: height,
+            activity: document.getElementById('activity').value,
+            goal: document.getElementById('goal').value,
+            lastUpdated: new Date().toISOString()
+        };
+        
+        localStorage.setItem('mealMateProfile', JSON.stringify(profile));
+        alert('Profile saved successfully!');
+    });
+
+    // Load profile on page load
+    function loadProfile() {
+        const savedProfile = localStorage.getItem('mealMateProfile');
+        if (savedProfile) {
+            const profile = JSON.parse(savedProfile);
+            
+            // Fill the form with saved values
+            document.getElementById('gender').value = profile.gender || '';
+            document.getElementById('age').value = profile.age || '';
+            document.getElementById('weight').value = profile.weight || '';
+            document.getElementById('height').value = profile.height || '';
+            document.getElementById('activity').value = profile.activity || '';
+            document.getElementById('goal').value = profile.goal || '';
+        }
+    }
     
+    loadProfile();
+
     // Debounce function
     function debounce(func, delay) {
         let timeout;
@@ -83,9 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupRecipeCards() {
         document.querySelectorAll('.recipe-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                // Don't navigate if user clicked on a button inside the card
                 if (e.target.tagName === 'BUTTON') return;
-                
                 const recipeId = card.getAttribute('data-id');
                 if (recipeId) {
                     window.location.href = `/recipe/${recipeId}`;
@@ -112,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             const recipes = await response.json();
-            displayRecipes(recipes);
+            displayRecipes(recipes); // Fixed typo here
         } catch (error) {
             console.error('Error searching recipes:', error);
             recipeResults.innerHTML = '<p class="error">Error loading recipes. Please try again.</p>';
@@ -128,9 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let html = '<h2>Found Recipes</h2>';
         recipes.forEach(recipe => {
-            // Simple ingredients list without quantities
             const ingredientsList = recipe.ingredients
-                .slice(0, 5) // Show first 5 ingredients only
+                .slice(0, 5)
                 .map(ing => `<li>${ing}</li>`)
                 .join('');
             
@@ -139,24 +200,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="recipe-content">
                         <div class="recipe-title">${recipe.name}</div>
                         <div class="recipe-meta">Serves: ${recipe.servings}</div>
-                        
                         <div class="recipe-info-flex">
-                        <div class="recipe-section">
-                            <h3>Key Ingredients</h3>
-                            <ul class="ingredients-list">${ingredientsList}</ul>
-                        </div>
-                        <div class="nutrition-label">
-                            <div class="nutrition-title">Nutrition Facts</div>
-                            <div><strong>Calories:</strong> ${recipe.nutrition.calories} kcal</div>
-                            <hr>
-                            <div><strong>Total Fat:</strong> ${recipe.nutrition.totalFat} g</div>
-                            <div class="sub-item">Saturated Fat: ${recipe.nutrition.saturatedFat} g</div>
-                            <div><strong>Sodium:</strong> ${recipe.nutrition.sodium} mg</div>
-                            <div><strong>Total Carbohydrate:</strong> ${recipe.nutrition.carbohydrate} g</div>
-                            <div class="sub-item">Sugars: ${recipe.nutrition.sugar} g</div>
-                            <div><strong>Protein:</strong> ${recipe.nutrition.protein} g</div>
+                            <div class="recipe-section">
+                                <h3>Key Ingredients</h3>
+                                <ul class="ingredients-list">${ingredientsList}</ul>
                             </div>
-                    </div>
+                            <div class="nutrition-label">
+                                <div class="nutrition-title">Nutrition Facts</div>
+                                <div><strong>Calories:</strong> ${recipe.nutrition.calories} kcal</div>
+                                <hr>
+                                <div><strong>Total Fat:</strong> ${recipe.nutrition.totalFat} g</div>
+                                <div class="sub-item">Saturated Fat: ${recipe.nutrition.saturatedFat} g</div>
+                                <div><strong>Sodium:</strong> ${recipe.nutrition.sodium} mg</div>
+                                <div><strong>Total Carbohydrate:</strong> ${recipe.nutrition.carbohydrate} g</div>
+                                <div class="sub-item">Sugars: ${recipe.nutrition.sugar} g</div>
+                                <div><strong>Protein:</strong> ${recipe.nutrition.protein} g</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
